@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'pingdominator'
-  s.version     = '0.0.0'
-  s.date        = '2015-06-26'
+  s.version     = '0.0.1'
+  s.date        = '2015-10-02'
   s.summary     = "Capistrano Plugin to Setup Pindom Alerts"
   s.description = "Idempotently Setup Pindom Alerts during Deployment"
   s.authors     = ["david amick"]

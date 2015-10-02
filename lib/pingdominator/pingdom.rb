@@ -51,9 +51,7 @@ namespace :pingdom do
   end
 
   if Rake::Task.task_defined?("deploy:publishing")
-    if fetch(:stage) == "production"
-      after 'deploy:publishing', 'pingdom:setup'
-    end
+    after 'deploy:publishing', 'pingdom:setup'
   end
 
 end
