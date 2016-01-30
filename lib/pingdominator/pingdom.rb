@@ -4,7 +4,7 @@ namespace :pingdom do
   namespace :setup do
 
     desc "Offer to remove any existing alert(s) and (re)create"
-    task :force => :check do
+    task :force => ['deployinator:load_settings', :check] do
       on roles(:pingdom) do |host|
         set :not_deleted, false
         if fetch(:pingdom_alert_exists)
@@ -40,7 +40,7 @@ namespace :pingdom do
   end
 
   desc "Ensure the alert exists"
-  task :setup => :check do
+  task :setup => ['deployinator:load_settings', :check] do
     on roles(:pingdom) do |host|
       unless fetch(:pingdom_alert_exists)
         Rake::Task['pingdom:setup:force'].invoke

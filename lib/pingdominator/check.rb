@@ -2,7 +2,7 @@ namespace :pingdom do
   namespace :check do
 
     desc 'Ensure all pingdominator specific settings are set, and warn and exit if not.'
-    task :settings do
+    task :settings => 'deployinator:load_settings' do
       {
         (File.dirname(__FILE__) + "/examples/config/deploy.rb") => 'config/deploy.rb',
         (File.dirname(__FILE__) + "/examples/config/deploy/staging.rb") => "config/deploy/#{fetch(:stage)}.rb"
@@ -14,7 +14,7 @@ namespace :pingdom do
 
     namespace :settings do
       desc 'Print example pingdominator specific settings for comparison.'
-      task :print do
+      task :print => 'deployinator:load_settings' do
         set :print_all, true
         Rake::Task['pingdom:check:settings'].invoke
       end
@@ -23,7 +23,7 @@ namespace :pingdom do
   end
 
   desc "Check the alert status"
-  task :status => :check do
+  task :status => ['deployinator:load_settings', :check] do
     on roles(:pingdom) do |host|
       fetch(:pingdom_checks).each do |check|
         results = JSON.parse list_check(check['id'])
@@ -32,21 +32,8 @@ namespace :pingdom do
     end
   end
 
-  task :set_output_verbosity do
-    set :old_output_verbosity, SSHKit.config.output_verbosity
-    if fetch(:debug)
-      SSHKit.config.output_verbosity = Logger::DEBUG
-    else
-      SSHKit.config.output_verbosity = Logger::INFO
-    end
-  end
-
-  after 'pingdom:setup:force', :unset_output_verbosity do
-    SSHKit.config.output_verbosity = fetch(:old_output_verbosity)
-  end
-
   #desc "Check if the alert exists"
-  task :check => [:set_output_verbosity, 'pingdom:check:settings'] do
+  task :check => ['deployinator:load_settings', 'pingdom:check:settings'] do
     require 'json'
     run_locally { warn "No #{fetch(:stage)} servers have been given the 'pingdom' role!" unless roles(:pingdom).length > 0 }
     on roles(:pingdom) do |host|

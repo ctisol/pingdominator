@@ -14,9 +14,8 @@ end
 namespace :pingdominator do
 
   set :example, "_example"
-
   desc "Write example config files (with '_example' appended to their names)."
-  task :write_example_configs do
+  task :write_example_configs => 'deployinator:load_settings' do
     run_locally do
       execute "mkdir", "-p", "config/deploy"
       {
@@ -36,14 +35,14 @@ namespace :pingdominator do
 
   desc 'Write example config files (will overwrite any existing config files).'
   namespace :write_example_configs do
-    task :in_place do
+    task :in_place => 'deployinator:load_settings' do
       set :example, ""
       Rake::Task['pingdominator:write_example_configs'].invoke
     end
   end
 
   desc 'Write a file showing the built-in overridable settings.'
-  task :write_built_in do
+  task :write_built_in => 'deployinator:load_settings' do
     run_locally do
       {
         'built-in.rb'                         => 'built-in.rb',
